@@ -89,6 +89,7 @@ cc_library(
     deps = [
         ":core_cpu",
         "//tensorflow/core/common_runtime/gpu:gpu_runtime",
+        "//tensorflow/core/common_runtime/pluggable_device:pluggable_device_runtime",
     ] + if_libtpu(["//tensorflow/core/tpu:tpu_runtime"]),
 )
 
@@ -1696,7 +1697,6 @@ cc_library(
         "//tensorflow/core:lib",
         "//tensorflow/core:lib_internal",
         "//tensorflow/core:protos_all_cc",
-        "//tensorflow/core/framework:allocator",
         "//tensorflow/core/profiler/lib:traceme",
         "@com_google_absl//absl/container:flat_hash_set",
         "@com_google_absl//absl/strings",
@@ -2716,5 +2716,17 @@ tf_cc_test(
         "//tensorflow/core/kernels:ops_util",
         "//tensorflow/core/util:protos_test_cc",
         "//third_party/eigen3",
+    ],
+)
+
+tf_cc_test(
+    name = "bfc_allocator_test",
+    srcs = ["bfc_allocator_test.cc"],
+    deps = [
+        ":bfc_allocator",
+        "//tensorflow/core:test",
+        "//tensorflow/core:test_main",
+        "//tensorflow/core/framework:allocator",
+        "//tensorflow/core/platform:test_benchmark",
     ],
 )

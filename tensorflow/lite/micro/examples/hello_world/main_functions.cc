@@ -20,7 +20,12 @@ limitations under the License.
 #include "tensorflow/lite/micro/examples/hello_world/model.h"
 #include "tensorflow/lite/micro/examples/hello_world/output_handler.h"
 #include "tensorflow/lite/micro/micro_error_reporter.h"
+<<<<<<< HEAD
 #include "tensorflow/lite/micro/recording_micro_interpreter.h"
+=======
+#include "tensorflow/lite/micro/micro_interpreter.h"
+#include "tensorflow/lite/micro/system_setup.h"
+>>>>>>> 682f7806e367f93db724118e62d72f282bc5cb91
 #include "tensorflow/lite/schema/schema_generated.h"
 
 #include "tensorflow/lite/micro/examples/hello_world/input_images.h"
@@ -46,6 +51,8 @@ int8_t* output_array;
 
 // The name of this function is important for Arduino compatibility.
 void setup() {
+  tflite::InitializeTarget();
+
   // Set up logging. Google style is to avoid globals or statics because of
   // lifetime uncertainty, but since this has a trivial destructor it's okay.
   // NOLINTNEXTLINE(runtime-global-variables)

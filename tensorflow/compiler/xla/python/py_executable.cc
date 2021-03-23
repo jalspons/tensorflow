@@ -109,34 +109,6 @@ StatusOr<std::vector<std::unique_ptr<PyBuffer>>> PyExecutable::Execute(
 }
 
 StatusOr<std::vector<std::vector<std::unique_ptr<PyBuffer>>>>
-PyExecutable::ExecuteOnLocalDevices(
-    absl::Span<const std::vector<PyBuffer*>> args) {
-  std::vector<std::vector<std::unique_ptr<PjRtBuffer>>> output_buffers;
-  {
-    py::gil_scoped_release gil_release;
-    std::vector<std::vector<PjRtBuffer*>> arg_buffers(args.size());
-    for (int computation = 0; computation < args.size(); ++computation) {
-      arg_buffers[computation].resize(args[computation].size());
-      absl::c_transform(args[computation], arg_buffers[computation].begin(),
-                        [](PyBuffer* buf) { return buf->buffer(); });
-    }
-    TF_ASSIGN_OR_RETURN(output_buffers,
-                        executable_->Execute(arg_buffers, options_));
-  }
-  auto traceback = Traceback::Get();
-  std::vector<std::vector<std::unique_ptr<PyBuffer>>> outputs;
-  outputs.resize(output_buffers.size());
-  for (int computation = 0; computation < output_buffers.size();
-       ++computation) {
-    for (auto& buffer : output_buffers[computation]) {
-      outputs[computation].push_back(
-          std::make_unique<PyBuffer>(client_, std::move(buffer), traceback));
-    }
-  }
-  return outputs;
-}
-
-StatusOr<std::vector<std::vector<std::unique_ptr<PyBuffer>>>>
 PyExecutable::ExecuteShardedOnLocalDevices(
     absl::Span<const std::vector<PyBuffer*>> args) {
   std::vector<std::vector<std::unique_ptr<PjRtBuffer>>> output_buffers;
@@ -157,8 +129,9 @@ PyExecutable::ExecuteShardedOnLocalDevices(
       }
     }
     std::vector<std::vector<PjRtBuffer*>> arg_buffers(num_computations);
+    const int num_args = args.size();
     for (int computation = 0; computation < num_computations; ++computation) {
-      arg_buffers[computation].resize(args.size());
+      arg_buffers[computation].resize(num_args);
       absl::c_transform(args, arg_buffers[computation].begin(),
                         [&](const std::vector<PyBuffer*>& arg) {
                           return arg[computation]->buffer();

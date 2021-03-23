@@ -135,7 +135,8 @@ struct RemoveVolatileOps : public OpRewritePattern<DequantizeOp> {
       // Don't remove leading and tailing QDQ for PQT workflow, so the io
       // modifying lib can work correctly.
       if (!q.input().getDefiningOp()) return failure();
-      if (op->hasOneUse() && op->user_begin()->isKnownTerminator())
+      if (op->hasOneUse() &&
+          op->user_begin()->hasTrait<OpTrait::IsTerminator>())
         return failure();
 
       op.replaceAllUsesWith(q.input());
@@ -155,7 +156,7 @@ struct PruneUnusedOpsWithSideEffect : public OpRewritePattern<OpTy> {
 
   LogicalResult matchAndRewrite(OpTy op,
                                 PatternRewriter& rewriter) const override {
-    if (op.getOperation()->isKnownTerminator()) {
+    if (op.getOperation()->template hasTrait<OpTrait::IsTerminator>()) {
       return failure();
     }
     for (auto result : op.getOperation()->getOpResults()) {
@@ -171,28 +172,28 @@ struct PruneUnusedOpsWithSideEffect : public OpRewritePattern<OpTy> {
 #include "tensorflow/compiler/mlir/lite/transforms/generated_post_quantize.inc"
 
 void PostQuantizePass::runOnFunction() {
-  OwningRewritePatternList patterns;
+  OwningRewritePatternList patterns(&getContext());
   auto func = getFunction();
   auto* ctx = func.getContext();
-  TFL::populateWithGenerated(ctx, patterns);
+  TFL::populateWithGenerated(patterns);
   patterns.insert<quant::FoldTrivalRequantizeOp<QuantizeOp>>(ctx);
   patterns.insert<PruneUnusedOpsWithSideEffect<TFL::LSTMOp>>(ctx);
   patterns
       .insert<PruneUnusedOpsWithSideEffect<TFL::UnidirectionalSequenceLSTMOp>>(
           ctx);
   patterns.insert<PruneUnusedOpsWithSideEffect<TFL::SVDFOp>>(ctx);
-  applyPatternsAndFoldGreedily(func, std::move(patterns));
+  (void)applyPatternsAndFoldGreedily(func, std::move(patterns));
 
   if (!emit_quant_adaptor_ops_) {
     RemoveQuantizationAdaptorOps(getFunction());
   }
 
-  OwningRewritePatternList phase_2_patterns;
-  TFL::populateWithGenerated(ctx, phase_2_patterns);
+  OwningRewritePatternList phase_2_patterns(&getContext());
+  TFL::populateWithGenerated(phase_2_patterns);
   phase_2_patterns
       .insert<quant::FoldTrivalRequantizeOp<QuantizeOp>, RemoveVolatileOps>(
           ctx);
-  applyPatternsAndFoldGreedily(func, std::move(phase_2_patterns));
+  (void)applyPatternsAndFoldGreedily(func, std::move(phase_2_patterns));
 }
 
 }  // namespace

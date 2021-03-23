@@ -63,13 +63,10 @@ class PyExecutable {
   StatusOr<std::vector<std::unique_ptr<PyBuffer>>> PjRtExecute(
       const std::vector<PjRtBuffer*>& args);
 
-  // TODO(parkers): Remove in favor of `ExecuteShardedOnLocalDevices`.
-  StatusOr<std::vector<std::vector<std::unique_ptr<PyBuffer>>>>
-  ExecuteOnLocalDevices(absl::Span<const std::vector<PyBuffer*>> args);
-
   // Takes args indexed by argid then deviceid, transposes them, and passes to
   // PjRtExecutable::Execute. The result is similarly transposed back into the
   // argid,deviceid format.
+  // args is [num_args x num_devices].
   StatusOr<std::vector<std::vector<std::unique_ptr<PyBuffer>>>>
   ExecuteShardedOnLocalDevices(absl::Span<const std::vector<PyBuffer*>> args);
 
@@ -78,6 +75,8 @@ class PyExecutable {
   Traceback* traceback() { return traceback_.get(); }
 
   const PjRtExecutable& pjrt_executable() const { return *executable_; }
+
+  PjRtExecutable* mutable_pjrt_executable() const { return executable_.get(); }
 
  private:
   friend class PyClient;

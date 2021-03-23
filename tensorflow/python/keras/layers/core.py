@@ -756,12 +756,14 @@ class RepeatVector(Layer):
 class Lambda(Layer):
   """Wraps arbitrary expressions as a `Layer` object.
 
-  The `Lambda` layer exists so that arbitrary TensorFlow functions
-  can be used when constructing `Sequential` and Functional API
-  models. `Lambda` layers are best suited for simple operations or
-  quick experimentation. For more advanced use cases, follow
+  The `Lambda` layer exists so that arbitrary expressions can be used
+  as a `Layer` when constructing `Sequential`
+  and Functional API models. `Lambda` layers are best suited for simple
+  operations or quick experimentation. For more advanced use cases, follow
   [this guide](https://www.tensorflow.org/guide/keras/custom_layers_and_models)
   for subclassing `tf.keras.layers.Layer`.
+
+  WARNING: `tf.keras.layers.Lambda` layers have (de)serialization limitations!
 
   The main reason to subclass `tf.keras.layers.Layer` instead of using a
   `Lambda` layer is saving and inspecting a Model. `Lambda` layers
@@ -1085,7 +1087,8 @@ class Dense(Layer):
   where `activation` is the element-wise activation function
   passed as the `activation` argument, `kernel` is a weights matrix
   created by the layer, and `bias` is a bias vector created by the layer
-  (only applicable if `use_bias` is `True`).
+  (only applicable if `use_bias` is `True`). These are all attributes of 
+  `Dense`.
 
   Note: If the input to the layer has a rank greater than 2, then `Dense`
   computes the dot product between the `inputs` and the `kernel` along the
@@ -1098,6 +1101,9 @@ class Dense(Layer):
 
   Besides, layer attributes cannot be modified after the layer has been called
   once (except the `trainable` attribute).
+  When a popular kwarg `input_shape` is passed, then keras will create
+  an input layer to insert before the current layer. This can be treated
+  equivalent to explicitly defining an `InputLayer`.
 
   Example:
 

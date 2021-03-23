@@ -51,6 +51,7 @@ ncclRedOp_t ToNcclReduction(ReductionKind kind);
 StatusOr<ncclDataType_t> ToNcclDataType(PrimitiveType element_type);
 
 bool IsGlobalNcclConfig();
+bool IsNcclLaunchModeParallel();
 
 Status ToStatus(ncclResult_t s, const char* file, int64 line, const char* expr);
 Status ToStatus(cudaError_t s, const char* file, int64 line, const char* expr);
@@ -61,7 +62,7 @@ Status ToStatus(cudaError_t s, const char* file, int64 line, const char* expr);
 // It's tempting to say these macros belong in an XLA header somewhere, but in
 // practice we don't do much direct-to-CUDA-API stuff outside of this file.
 #define XLA_CUDA_STATUS(expr) \
-  ::xla::gpu::ToStatus(expr, __FILE__, __LINE__, #expr)
+  xla::gpu::ToStatus(expr, __FILE__, __LINE__, #expr)
 
 #define XLA_CUDA_RETURN_IF_ERROR(expr) \
   do {                                 \
