@@ -18,13 +18,16 @@ tensorflow/lite/micro/examples/hello_world/main.cc \
 tensorflow/lite/micro/examples/hello_world/main_functions.cc \
 tensorflow/lite/micro/examples/hello_world/model.cc \
 tensorflow/lite/micro/examples/hello_world/output_handler.cc \
-tensorflow/lite/micro/examples/hello_world/constants.cc
+tensorflow/lite/micro/examples/hello_world/constants.cc \
+tensorflow/lite/micro/examples/hello_world/input_images.cc
+
 
 HELLO_WORLD_HDRS := \
 tensorflow/lite/micro/examples/hello_world/model.h \
 tensorflow/lite/micro/examples/hello_world/output_handler.h \
 tensorflow/lite/micro/examples/hello_world/constants.h \
-tensorflow/lite/micro/examples/hello_world/main_functions.h
+tensorflow/lite/micro/examples/hello_world/main_functions.h \
+tensorflow/lite/micro/examples/hello_world/input_images.h \
 
 #Find any platform - specific rules for this example.
 include $(wildcard tensorflow/lite/micro/examples/hello_world/*/Makefile.inc)

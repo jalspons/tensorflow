@@ -18,11 +18,15 @@
 
 set -e
 
+TEST_TMPDIR=/mnt/d/projects/tflite/tensorflow
+TEST_SRCDIR=/mnt/d/projects/tflite/tensorflow
+
 OUTPUT_LOG_FILE=${TEST_TMPDIR}/output_log.txt
+OUTPUT_LOG_FILE=./output_log.txt
 
 # Needed for copybara compatibility.
-SCRIPT_BASE_DIR=/org_"tensor"flow
-${TEST_SRCDIR}${SCRIPT_BASE_DIR}/tensorflow/lite/micro/examples/hello_world/hello_world   2>&1 | head > ${OUTPUT_LOG_FILE}
+#SCRIPT_BASE_DIR=/org_"tensor"flow
+${TEST_SRCDIR}${SCRIPT_BASE_DIR}/tensorflow/lite/micro/examples/hello_world/hello_world   #2>&1 | head > ${OUTPUT_LOG_FILE}
 
 if ! grep -q 'x_value:.*y_value:' ${OUTPUT_LOG_FILE}; then
   echo "ERROR: Expected logs not found in output '${OUTPUT_LOG_FILE}'"
